@@ -4,6 +4,7 @@ import asyncio
 import collections
 import json
 import time
+import subprocess
 from pathlib import Path
 
 import pyrogram
@@ -80,6 +81,7 @@ async def send_video(
     await client.send_video(
         chat_id,
         file_path,
+        duration=get_video_duration(file_path),
         caption=caption,
         progress=progress_bar,
         progress_args=(c_time, prefix),
@@ -361,6 +363,15 @@ def delete_local_media(cloneplan_path: Path, message_id: int):
     file_path = dict_data[message_id]["file_path"]
     if Path(file_path).exists() and file_path != "":
         Path(file_path).unlink()
+
+def get_video_duration(video_path: Path):
+    # try to get input media duration
+    try:
+        duration_sec = subprocess.run(["ffprobe", "-i", "file:" + video_path, "-show_entries", "format=duration", "-v", "quiet", "-of", "csv=p=0"],
+                                      capture_output=True, text=True).stdout.split("\n")[0].replace("\n", "").replace(" ", "").replace("   ", "").replace("00:", "").replace(":", ".")
+        return int(duration_sec)
+    except Exception:
+        return 0
 
 
 async def pipe_upload(
