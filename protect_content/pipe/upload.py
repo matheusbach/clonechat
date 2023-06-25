@@ -298,8 +298,17 @@ async def upload_media(
             True,
         )
     if message_type == "photo":
-        await send_photo(
-            client_name, session_folder, chat_id, file_path, caption
+        time_out(
+            auto_restart_seconds,
+            send_photo,
+            {
+                "client_name": client_name,
+                "session_folder": session_folder,
+                "chat_id": chat_id,
+                "file_path": file_path,
+                "caption": caption,
+            },
+            True,
         )
     if message_type == "audio":
         # await send_audio(
